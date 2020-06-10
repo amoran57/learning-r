@@ -17,10 +17,7 @@ plot (sales~brand, data=oj, log="y")
 plot(sales~price, data=oj, log="y", col=oj$brand)
 legend("topright", fill =1:3, legend = levels(oj$brand))
 
-fit <- glm(log(sales)~ .,data=oj)
-summary(fit)
-
-#bootstrapping the distribution
+#bootstrapping the distribution: nonparametric bootstrap on sales variable
 B <- 10000
 mub <- c()
 for (b in 1:B) {
@@ -38,3 +35,17 @@ xbse <-  sd(log(oj$sales))/sqrt(nrow(oj))
 xx <- seq(9,10,length=1000)
 lines(xx, dnorm(xx, xbar, xbse), col="royalblue", lwd=1.5)
 sort(samp_b)[1:10]
+
+#bootstrap on a regression
+fit <- glm(log(sales)~ .,data=oj)
+summary(fit)
+#confidence interval for estimator on price:
+-1.05063+c(-2,2)*0.01008
+#bootstrap the interval on that estimator:
+B <- 1000
+betas <- c()
+for (b in 1:B) {
+  samp_b <- sample.int(nrow(oj),replace=TRUE)
+  reg_b <- glm(log(sales)~ ., data=oj[samp_b,])
+  betas <- rbind(betas, coef(reg_b))
+}
