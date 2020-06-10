@@ -21,15 +21,20 @@ fit <- glm(log(sales)~ .,data=oj)
 summary(fit)
 
 #bootstrapping the distribution
-B <- 1000
+B <- 10000
 mub <- c()
 for (b in 1:B) {
   samp_b <- sample.int(nrow(oj),replace = TRUE)
-  lsales <- log(oj$sales[samp_b])
-  mulsales <- mean(lsales)
-  mub <- c(mub, mulsales)
+  mub <- c(mub, mean(log(oj$sales[samp_b])))
 }
 
-#now we have B=1000 mean sales estimates, each drawn on a full-size sample
-sd(mub)
-plot(sales~log(sales), data=oj)
+#now we have B=10000 mean sales estimates, each drawn on a full-size sample
+plot(mub)
+#this is our distribution:
+hist(mub,freq=FALSE)
+#and to overlay the standard normal distribution:
+xbar <- mean(log(oj$sales))
+xbse <-  sd(log(oj$sales))/sqrt(nrow(oj))
+xx <- seq(9,10,length=1000)
+lines(xx, dnorm(xx, xbar, xbse), col="royalblue", lwd=1.5)
+sort(samp_b)[1:10]
